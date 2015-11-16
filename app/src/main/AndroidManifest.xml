@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.cmpe272.beecafeteria" >
+
+    <!-- To be able to access Internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- To wakeup processor from sleeping while Notification arrive -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- To access Network state -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- To getAccount details for GCM reg -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <!-- To register in GCM and get back regId Token -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name=".activities.MainActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.LoginActivity"
+            android:theme="@style/AppTheme.Dark" />
+        <activity
+            android:name=".activities.SignupActivity"
+            android:theme="@style/AppTheme.Dark" />
+
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="com.example.gcm" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Notification Handler service -->
+        <service
+            android:name=".services.GCMListnerService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".services.GCMRegistrationIntentService"
+            android:exported="false" />
+        <service
+            android:name=".services.MyInstaceIDListnerService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name=".activities.UserActivity"
+            android:label="@string/title_activity_user" >
+        </activity>
+    </application>
+
+</manifest>
