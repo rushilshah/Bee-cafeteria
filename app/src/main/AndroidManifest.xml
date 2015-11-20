@@ -12,8 +12,20 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <!-- To register in GCM and get back regId Token -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <!-- To access vibrate-->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- parse permissions -->
+    <permission
+        android:name="com.cmpe272.beecafeteria.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.cmpe272.beecafeteria.permission.C2D_MESSAGE" />
+
 
     <application
+        android:name="com.cmpe272.beecafeteria.base.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -33,6 +45,17 @@
         <activity
             android:name=".activities.SignupActivity"
             android:theme="@style/AppTheme.Dark" />
+        <activity
+            android:name=".activities.UserActivity"
+            android:theme="@style/AppTheme"
+            android:label="@string/title_activity_user" >
+            <!--<intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>-->
+        </activity>
+
 
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
@@ -64,10 +87,45 @@
             </intent-filter>
         </service>
 
+        <!-- All parser activity and services -->
+
         <activity
-            android:name=".activities.UserActivity"
-            android:label="@string/title_activity_user" >
+            android:name=".parser.LoginActivity"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+
         </activity>
+        <activity
+            android:name=".parser.MainActivity"
+            android:label="@string/app_name" />
+        <service android:name="com.parse.PushService" />
+
+        <receiver
+            android:name=".parser.CustomPushReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="com.parse.push.intent.RECEIVE" />
+                <action android:name="com.parse.push.intent.DELETE" />
+                <action android:name="com.parse.push.intent.OPEN" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.parse.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <!-- IMPORTANT: Change "info.androidhive.parsenotifications" to match your app's package name. -->
+                <category android:name="com.cmpe272.beecafeteria" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Completed all parser activity and services -->
+
+
     </application>
 
 </manifest>

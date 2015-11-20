@@ -1,6 +1,7 @@
 package com.cmpe272.beecafeteria.network;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
@@ -41,7 +42,7 @@ public class GsonGetRequest<T> extends Request<T>
     )
     {
         super(Method.GET, url, errorListener);
-
+        Log.v("Request: ", url);
         this.gson = gson;
         this.type = type;
         this.listener = listener;
@@ -50,6 +51,7 @@ public class GsonGetRequest<T> extends Request<T>
     @Override
     protected void deliverResponse(T response)
     {
+        Log.v("Response: ", response.toString());
         listener.onResponse(response);
     }
 

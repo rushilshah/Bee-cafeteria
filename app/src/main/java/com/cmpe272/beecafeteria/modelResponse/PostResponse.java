@@ -1,4 +1,4 @@
-package com.cmpe272.beecafeteria.model;
+package com.cmpe272.beecafeteria.modelResponse;
 
 import com.google.gson.annotations.SerializedName;
 

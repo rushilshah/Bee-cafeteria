@@ -4,12 +4,12 @@ import android.support.annotation.NonNull;
 
 import com.android.volley.Response;
 import com.cmpe272.beecafeteria.BuildConfig;
-import com.cmpe272.beecafeteria.model.PostResponse;
+import com.cmpe272.beecafeteria.modelResponse.PostResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+
 import java.util.ArrayList;
 
 /**
@@ -73,11 +73,11 @@ public class LoginApiRequests {
 
 
     /**
-     * An example call (not used in this app example) to demonstrate how to do a Volley POST call
-     * and parse the response with Gson.
+     * An Login call that would send data and authenticate user through volley
      *
      * @param listener is the listener for the success response
      * @param errorListener is the listener for the error response
+     * @param params parameters tht will be send in post request
      *
      * @return {@link GsonPostRequest}
      */
@@ -91,10 +91,10 @@ public class LoginApiRequests {
         final String url = BuildConfig.apiDomainName + "/login";
 
         final JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("username", params[0]);
-        jsonObject.addProperty("password", params[1]);
+        jsonObject.addProperty("uname", params[0]);
+        jsonObject.addProperty("pass", params[1]);
 
-        final JsonArray squareGuys = new JsonArray();
+        /*final JsonArray squareGuys = new JsonArray();
         final JsonObject dev1 = new JsonObject();
         final JsonObject dev2 = new JsonObject();
         dev1.addProperty("name", "Jake Wharton");
@@ -102,7 +102,7 @@ public class LoginApiRequests {
         squareGuys.add(dev1);
         squareGuys.add(dev2);
 
-        jsonObject.add("squareGuys", squareGuys);
+        jsonObject.add("squareGuys", squareGuys);*/
 
         final GsonPostRequest gsonPostRequest = new GsonPostRequest<>
                 (

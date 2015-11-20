@@ -10,10 +10,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.cmpe272.beecafeteria.R;
+import com.cmpe272.beecafeteria.base.App;
+import com.cmpe272.beecafeteria.modelResponse.PostResponse;
+import com.cmpe272.beecafeteria.network.GsonPostRequest;
+import com.cmpe272.beecafeteria.network.RegisterApiRequests;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * Created by Rushil on 11/12/2015.
@@ -21,17 +27,26 @@ import butterknife.InjectView;
 public class SignupActivity extends AppCompatActivity {
     private static final String TAG = "SignupActivity";
 
-    @InjectView(R.id.input_name) EditText _nameText;
-    @InjectView(R.id.input_email) EditText _emailText;
-    @InjectView(R.id.input_password) EditText _passwordText;
-    @InjectView(R.id.btn_signup) Button _signupButton;
-    @InjectView(R.id.link_login) TextView _loginLink;
+    @Bind(R.id.input_name)
+    EditText _nameText;
+    @Bind(R.id.input_email)
+    EditText _emailText;
+    @Bind(R.id.input_password)
+    EditText _passwordText;
+    @Bind(R.id.input_cellNumber)
+    EditText _phoneNo;
+    @Bind(R.id.input_confirm_password)
+    EditText _confirmPasswordText;
+    @Bind(R.id.btn_signup)
+    Button _signupButton;
+    @Bind(R.id.link_login)
+    TextView _loginLink;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         _signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,22 +80,44 @@ public class SignupActivity extends AppCompatActivity {
         progressDialog.setMessage("Creating Account...");
         progressDialog.show();
 
-        String name = _nameText.getText().toString();
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
+        String strUsername = _nameText.getText().toString();
+        String strEmail = _emailText.getText().toString();
+        String strPassword = _passwordText.getText().toString();
+        String strConfirmPassword = _confirmPasswordText.getText().toString();
+        String strCellNo = _phoneNo.getText().toString();
 
-        // TODO: Implement your own signup logic here.
+        final GsonPostRequest gsonPostRequest =
+                RegisterApiRequests.postRegisterrequest
+                        (
+                                new Response.Listener<PostResponse>() {
+                                    @Override
+                                    public void onResponse(PostResponse dummyObject) {
+                                        // Deal with the DummyObject here
+                                        //mProgressBar.setVisibility(View.GONE);
+                                        //mContent.setVisibility(View.VISIBLE);
+                                        ///setData(dummyObject);
+                                        //_signupButton.setEnabled(true);
+                                        progressDialog.dismiss();
 
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onSignupSuccess or onSignupFailed
-                        // depending on success
-                        onSignupSuccess();
-                        // onSignupFailed();
-                        progressDialog.dismiss();
-                    }
-                }, 3000);
+                                        onSignupSuccess();
+                                    }
+                                }
+                                ,
+                                new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        // Deal with the error here
+                                        //mProgressBar.setVisibility(View.GONE);
+                                        //mErrorView.setVisibility(View.VISIBLE);
+                                        progressDialog.dismiss();
+                                        onSignupFailed();
+                                    }
+                                },
+                                strUsername, strPassword, strEmail, strCellNo
+                        );
+
+        App.addRequest(gsonPostRequest, TAG);
+
     }
 
 
@@ -91,7 +128,7 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     public void onSignupFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
+        Toast.makeText(getBaseContext(), "Sign up failed! try again", Toast.LENGTH_LONG).show();
         _signupButton.setEnabled(true);
     }
 
@@ -101,6 +138,8 @@ public class SignupActivity extends AppCompatActivity {
         String name = _nameText.getText().toString();
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
+        String confirmPassword = _confirmPasswordText.getText().toString();
+        String cellNo = _phoneNo.getText().toString();
 
         if (name.isEmpty() || name.length() < 3) {
             _nameText.setError("at least 3 characters");
@@ -121,6 +160,20 @@ public class SignupActivity extends AppCompatActivity {
             valid = false;
         } else {
             _passwordText.setError(null);
+        }
+
+        if (password.isEmpty() || confirmPassword.isEmpty() || !password.equals(confirmPassword)) {
+            _passwordText.setError("Password and Confirm Password doesn't match.");
+            valid = false;
+        } else {
+            _passwordText.setError(null);
+        }
+
+        if (cellNo.isEmpty()) {
+            _phoneNo.setError("Enter a valid phone number");
+            valid = false;
+        } else {
+            _phoneNo.setError(null);
         }
 
         return valid;

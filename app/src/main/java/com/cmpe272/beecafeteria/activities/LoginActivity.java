@@ -3,6 +3,8 @@ package com.cmpe272.beecafeteria.activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -15,12 +17,14 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.cmpe272.beecafeteria.R;
 import com.cmpe272.beecafeteria.base.App;
-import com.cmpe272.beecafeteria.model.PostResponse;
+import com.cmpe272.beecafeteria.modelResponse.PostResponse;
 import com.cmpe272.beecafeteria.network.GsonPostRequest;
 import com.cmpe272.beecafeteria.network.LoginApiRequests;
+import com.cmpe272.beecafeteria.others.SessionManager;
+import com.cmpe272.beecafeteria.others.Utils;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * Created by Rushil on 11/12/2015.
@@ -29,25 +33,34 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
 
-    @InjectView(R.id.input_email)
+    @Bind(R.id.coordinatorLayout)
+    CoordinatorLayout coordinatorLayout;
+    @Bind(R.id.input_email)
     EditText _emailText;
-    @InjectView(R.id.input_password) EditText _passwordText;
-    @InjectView(R.id.btn_login)
+    @Bind(R.id.input_password) EditText _passwordText;
+    @Bind(R.id.btn_login)
     Button _loginButton;
-    @InjectView(R.id.link_signup)
+    @Bind(R.id.link_signup)
     TextView _signupLink;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
+
+        if(SessionManager.isLoggedIn(LoginActivity.this)){
+            onLoginSuccess();
+        }
 
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                login();
+                if(Utils.isNetworkAvailable(LoginActivity.this))
+                    login();
+                else
+                    Utils.showSnackbarForConnection(coordinatorLayout);
             }
         });
 
@@ -78,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
 
-        String strUsername = _passwordText.getText().toString().trim();
+        final String strUsername = _emailText.getText().toString().trim();
         String strPassword = _passwordText.getText().toString().trim();
 
             final GsonPostRequest gsonPostRequest =
@@ -93,7 +106,8 @@ public class LoginActivity extends AppCompatActivity {
                                             ///setData(dummyObject);
                                             _loginButton.setEnabled(true);
                                             progressDialog.dismiss();
-
+                                            SessionManager.createLoginSession(LoginActivity.this,strUsername);
+                                            onLoginSuccess();
                                         }
                                     }
                                     ,
@@ -121,8 +135,7 @@ public class LoginActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
 
                 // TODO: Implement successful signup logic here
-                // By default we just finish the Activity and log them in automatically
-                this.finish();
+                Snackbar.make(coordinatorLayout,"Congratulations you have register successfully!!",Snackbar.LENGTH_SHORT).show();
             }
         }
     }
@@ -133,6 +146,11 @@ public class LoginActivity extends AppCompatActivity {
         moveTaskToBack(true);
     }
 
+    public void onLoginSuccess(){
+        Intent intent = new Intent(getApplicationContext(), UserActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
 
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
@@ -146,8 +164,9 @@ public class LoginActivity extends AppCompatActivity {
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
 
-        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _emailText.setError("enter a valid email address");
+        //!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        if (email.isEmpty()) {
+            _emailText.setError("enter a valid user name");
             valid = false;
         } else {
             _emailText.setError(null);

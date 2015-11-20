@@ -1,6 +1,7 @@
 package com.cmpe272.beecafeteria.network;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
@@ -42,7 +43,7 @@ public class GsonPostRequest<T> extends JsonRequest<T>
     )
     {
         super(Method.POST, url, body, listener, errorListener);
-
+        Log.v("Request: ", body);
         this.gson = gson;
         this.type = type;
         this.listener = listener;
@@ -60,6 +61,8 @@ public class GsonPostRequest<T> extends JsonRequest<T>
         try
         {
             String json = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+
+            Log.v("Response: ", json);
 
             return (Response<T>) Response.success
                     (

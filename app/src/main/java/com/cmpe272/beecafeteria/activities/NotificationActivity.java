@@ -10,22 +10,22 @@ import android.widget.TextView;
 
 import com.cmpe272.beecafeteria.R;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * Created by Rushil on 11/13/2015.
  */
 public class NotificationActivity extends AppCompatActivity {
 
-    @InjectView(R.id.notifText)
+    @Bind(R.id.notifText)
     TextView _notifText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notification);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
         Intent intent = NotificationActivity.this.getIntent();
         String data = intent.getStringExtra("data");
         _notifText.setText("Your GCM data is: "+data);
