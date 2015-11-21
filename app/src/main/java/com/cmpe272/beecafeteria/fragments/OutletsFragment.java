@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.cmpe272.beecafeteria.R;
 import com.cmpe272.beecafeteria.adapter.OutletsAdapter;
-import com.cmpe272.beecafeteria.modelApp.Outlet;
+import com.cmpe272.beecafeteria.modelResponse.Outlet;
 
 import org.lucasr.twowayview.ItemClickSupport;
 import org.lucasr.twowayview.widget.TwoWayView;

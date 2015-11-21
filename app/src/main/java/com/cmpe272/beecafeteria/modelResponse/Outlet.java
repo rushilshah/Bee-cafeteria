@@ -1,4 +1,4 @@
-package com.cmpe272.beecafeteria.modelApp;
+package com.cmpe272.beecafeteria.modelResponse;
 
 /**
  * Created by Rushil on 11/20/2015.
