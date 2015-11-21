@@ -133,6 +133,7 @@ public class UserActivity extends AppCompatActivity
 
     public void setFragment(Fragment fragment, boolean isAdd) {
 
+        //TODO: Unhandled for generic fragment only pop one fragment. have to handle it generic.
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
