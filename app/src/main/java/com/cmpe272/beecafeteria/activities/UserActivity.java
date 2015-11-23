@@ -26,6 +26,7 @@ import butterknife.ButterKnife;
 public class UserActivity extends AppCompatActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks, OrdersFragment.OrderFragmentCallbacks {
 
+    private static final String TAG = "UserActivity";
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -56,7 +57,10 @@ public class UserActivity extends AppCompatActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout), mToolbar);
+
     }
+
+
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
@@ -144,6 +148,7 @@ public class UserActivity extends AppCompatActivity
         fragmentTransaction.replace(R.id.container, fragment)
                 .commit();
     }
+
 
 
 }
