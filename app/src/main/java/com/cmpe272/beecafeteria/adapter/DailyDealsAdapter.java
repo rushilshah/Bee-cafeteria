@@ -45,8 +45,10 @@ public class DailyDealsAdapter extends RecyclerView.Adapter<DailyDealsAdapter.My
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         DailyDeals deals = data.get(position);
-        holder.title.setText(deals.getDailyDealTitle());
-        holder.descripion.setText(deals.getDailyDealDescription());
+        holder.txtTitle.setText(deals.getDailyDealTitle());
+        holder.txtDescripion.setText(deals.getDailyDealDescription());
+        holder.txtPrice.setText(String.valueOf(deals.getPrice()) + " $");
+        holder.txtValidity.setText(deals.getDealStartTime() + " - "+ deals.getDealEndTime());
     }
 
     @Override
@@ -56,10 +58,16 @@ public class DailyDealsAdapter extends RecyclerView.Adapter<DailyDealsAdapter.My
 
     class MyViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.title)
-        TextView title;
+        TextView txtTitle;
+
+        @Bind(R.id.txt_price)
+        TextView txtPrice;
+
+        @Bind(R.id.txt_validity)
+        TextView txtValidity;
 
         @Bind(R.id.description)
-        TextView descripion;
+        TextView txtDescripion;
 
         public MyViewHolder(View itemView) {
             super(itemView);

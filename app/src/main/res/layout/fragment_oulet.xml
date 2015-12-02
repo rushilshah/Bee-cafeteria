@@ -11,13 +11,15 @@
             android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
         <org.lucasr.twowayview.widget.TwoWayView
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/orderList"
+            android:id="@+id/menuList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:twowayview_layoutManager="ListLayoutManager"/>
+
         </android.support.v4.widget.SwipeRefreshLayout>
 
         <LinearLayout
@@ -40,7 +42,34 @@
                 android:layout_gravity="center"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:text="No Orders!" />
+                android:text="No Deals!" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_alignParentBottom="true">
+            <android.support.v7.widget.AppCompatButton
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:textAllCaps="false"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:textColor="@color/white"/>
+            <android.support.v7.widget.AppCompatButton
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:id="@+id/btn_checkout"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:textColor="@color/white"
+                android:textAllCaps="false"
+                android:layout_weight="1"
+                android:text="Checkout"/>
         </LinearLayout>
     </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

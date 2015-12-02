@@ -37,6 +37,7 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -54,6 +55,9 @@ public class NavigationDrawerFragment extends Fragment {
 
     @Bind(R.id.btn_logout)
     TextView btnLogout;
+
+    @Bind(R.id.app_icon)
+    CircleImageView appIcon;
 
     @OnClick(R.id.btn_logout)
     void onBtnLogout(){

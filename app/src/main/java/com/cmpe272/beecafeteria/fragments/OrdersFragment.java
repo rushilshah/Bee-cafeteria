@@ -1,17 +1,28 @@
 package com.cmpe272.beecafeteria.fragments;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.cmpe272.beecafeteria.R;
 import com.cmpe272.beecafeteria.adapter.OrderAdapter;
+import com.cmpe272.beecafeteria.base.App;
 import com.cmpe272.beecafeteria.modelResponse.Order;
+import com.cmpe272.beecafeteria.network.GsonPostRequest;
+import com.cmpe272.beecafeteria.network.OrderApiRequests;
+import com.cmpe272.beecafeteria.others.SessionManager;
 
 import org.lucasr.twowayview.ItemClickSupport;
 import org.lucasr.twowayview.widget.TwoWayView;
@@ -29,8 +40,19 @@ import butterknife.ButterKnife;
  */
 public class OrdersFragment extends Fragment {
 
+    public static String TAG = "OrdersFragment";
+
     @Bind(R.id.orderList)
     TwoWayView orderList;
+
+    @Bind(R.id.coordinatorLayout)
+    CoordinatorLayout coordinatorLayout;
+
+    @Bind(R.id.swipe_refresh_layout)
+    SwipeRefreshLayout swipeRefreshLayout;
+
+    @Bind(R.id.no_item_layout)
+    LinearLayout layoutNoItem;
 
     //Context of application
     private Activity activity;
@@ -77,6 +99,8 @@ public class OrdersFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
         }
+        orderArrList = new ArrayList<>();
+        getData();
     }
 
     @Override
@@ -97,9 +121,16 @@ public class OrdersFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_orders, container, false);
         ButterKnife.bind(this, view);
 
-        orderAdapter = new OrderAdapter(activity, getData());
+        orderAdapter = new OrderAdapter(activity, orderArrList);
 
         orderList.setAdapter(orderAdapter);
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getData();
+            }
+        });
 
         final ItemClickSupport itemClick = ItemClickSupport.addTo(orderList);
 
@@ -114,8 +145,9 @@ public class OrdersFragment extends Fragment {
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
+    public void onStop() {
+        super.onStop();
+        App.cancelAllRequests(TAG);
     }
 
     /**
@@ -123,8 +155,8 @@ public class OrdersFragment extends Fragment {
      *
      * @return list of navigation drawer items
      */
-    public List<Order> getData() {
-        List<Order> data = new ArrayList<>();
+    public void getData() {
+        /*List<Order> data = new ArrayList<>();
 
 
         // preparing navigation drawer items
@@ -140,7 +172,59 @@ public class OrdersFragment extends Fragment {
         }
 
         orderArrList = data;
-        return data;
+        return data;*/
+
+        final ProgressDialog progressDialog = new ProgressDialog(activity,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Fetching previous orders...");
+        progressDialog.show();
+
+        final String strUsername = SessionManager.getUserDetails(activity).get(SessionManager.KEY_EMAIL);
+
+        final GsonPostRequest gsonPostRequest =
+                OrderApiRequests.getOrdersRequests
+                        (
+                                new Response.Listener<ArrayList<Order>>() {
+                                    @Override
+                                    public void onResponse(ArrayList<Order> arrOrders) {
+                                        orderArrList.clear();
+                                        orderArrList.addAll(arrOrders);
+                                        orderAdapter.notifyDataSetChanged();
+
+                                        if (orderArrList.isEmpty()) {
+                                            layoutNoItem.setVisibility(View.VISIBLE);
+                                            orderList.setVisibility(View.GONE);
+                                        } else {
+                                            layoutNoItem.setVisibility(View.GONE);
+                                            orderList.setVisibility(View.VISIBLE);
+                                        }
+
+                                        swipeRefreshLayout.setRefreshing(false);
+
+                                        progressDialog.dismiss();
+                                    }
+                                }
+                                ,
+                                new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        Snackbar.make(coordinatorLayout, "Something went wrong!", Snackbar.LENGTH_LONG)
+                                                .setAction("Retry", new View.OnClickListener() {
+                                                    @Override
+                                                    public void onClick(View view) {
+                                                        getData();
+                                                    }
+                                                }).show();
+                                        progressDialog.dismiss();
+                                    }
+                                },
+                                strUsername
+                        );
+
+        App.addRequest(gsonPostRequest, TAG);
+
+
     }
 
 

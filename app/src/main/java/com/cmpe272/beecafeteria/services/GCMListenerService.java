@@ -34,12 +34,13 @@ public class GCMListenerService extends GcmListenerService {
     public void notifyUser(Context context,String data){
         Intent intent = new Intent(context, UserActivity.class);
         intent.putExtra("data", data);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.setAction("OPEN_OUTLETS");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setSmallIcon(R.mipmap.ic_launcher);
         builder.setAutoCancel(true);
-        builder.setContentTitle("New Notification");
+        builder.setContentTitle(context.getString(R.string.app_name));
         builder.setContentIntent(pendingIntent);
         builder.setContentText(data);
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

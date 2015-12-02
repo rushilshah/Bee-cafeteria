@@ -8,7 +8,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.cmpe272.beecafeteria.others.OkHttpStack;
-import com.cmpe272.beecafeteria.parser.ParseUtils;
+import com.squareup.leakcanary.LeakCanary;
 import com.squareup.okhttp.OkHttpClient;
 
 /**
@@ -28,9 +28,9 @@ public class App extends Application
         super.onCreate();
 
         sInstance = this;
-        // register with parse
-        ParseUtils.registerParse(this);
-    }
+        LeakCanary.install(this);
+
+}
 
     /**
      * @return the application singleton instance

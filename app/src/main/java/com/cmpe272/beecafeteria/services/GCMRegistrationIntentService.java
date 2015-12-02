@@ -7,7 +7,14 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.cmpe272.beecafeteria.R;
+import com.cmpe272.beecafeteria.base.App;
+import com.cmpe272.beecafeteria.modelResponse.PostResponse;
+import com.cmpe272.beecafeteria.network.GsonPostRequest;
+import com.cmpe272.beecafeteria.network.RegisterApiRequests;
+import com.cmpe272.beecafeteria.others.SessionManager;
 import com.cmpe272.beecafeteria.others.Utils;
 import com.google.android.gms.gcm.GcmPubSub;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -66,9 +73,43 @@ public class GCMRegistrationIntentService extends IntentService {
     private void sendRegistrationToServer(String token) {
         // send network request
 
-        // if registration sent was successful, store a boolean that indicates whether the generated token has been sent to server
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPreferences.edit().putBoolean(SENT_TOKEN_TO_SERVER, true).apply();
+        String strUsername  =SessionManager.getUserDetails(this).get(SessionManager.KEY_EMAIL);
+
+        final GsonPostRequest gsonPostRequest =
+                RegisterApiRequests.postGCMRegistration
+                        (
+                                new Response.Listener<PostResponse>() {
+                                    @Override
+                                    public void onResponse(PostResponse dummyObject) {
+                                        // Deal with the DummyObject here
+                                        //mProgressBar.setVisibility(View.GONE);
+                                        //mContent.setVisibility(View.VISIBLE);
+                                        ///setData(dummyObject);
+                                        // if registration sent was successful, store a boolean that indicates whether the generated token has been sent to server
+                                        Log.d("Server GCM registration","Successful");
+                                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(GCMRegistrationIntentService.this);
+                                        sharedPreferences.edit().putBoolean(SENT_TOKEN_TO_SERVER, true).apply();
+                                    }
+                                }
+                                ,
+                                new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        // Deal with the error here
+                                        //mProgressBar.setVisibility(View.GONE);
+                                        //mErrorView.setVisibility(View.VISIBLE);
+                                        // if registration sent was successful, store a boolean that indicates whether the generated token has been sent to server
+                                        Log.d("Server GCM registration","Failed");
+                                        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(GCMRegistrationIntentService.this);
+                                        sharedPreferences.edit().putBoolean(SENT_TOKEN_TO_SERVER, false).apply();
+                                    }
+                                },
+                                strUsername, token
+                        );
+
+        App.addRequest(gsonPostRequest, TAG);
+
+
 
     }
 

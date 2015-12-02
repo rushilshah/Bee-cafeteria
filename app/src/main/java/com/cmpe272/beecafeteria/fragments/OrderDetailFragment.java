@@ -24,9 +24,6 @@ public class OrderDetailFragment extends Fragment {
     @Bind(R.id.txtOutlet)
     TextView txtOutlet;
 
-    @Bind(R.id.txtCounter)
-    TextView txtCounter;
-
     @Bind(R.id.txtDescription)
     TextView txtDescription;
 
@@ -90,7 +87,6 @@ public class OrderDetailFragment extends Fragment {
 
         if(orderDetails != null){
             txtOutlet.setText(orderDetails.getOutlateName());
-            txtCounter.setText(orderDetails.getCounter());
             txtDescription.setText(orderDetails.getOrderDescription());
             txtDate.setText(orderDetails.getOrderDate());
             txtStatus.setText(orderDetails.getStatus());

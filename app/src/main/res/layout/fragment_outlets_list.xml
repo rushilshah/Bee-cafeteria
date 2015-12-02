@@ -14,10 +14,11 @@
         <org.lucasr.twowayview.widget.TwoWayView
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/orderList"
+            android:id="@+id/outletList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:twowayview_layoutManager="ListLayoutManager"/>
+
         </android.support.v4.widget.SwipeRefreshLayout>
 
         <LinearLayout
@@ -40,7 +41,7 @@
                 android:layout_gravity="center"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:text="No Orders!" />
+                android:text="No Deals!" />
         </LinearLayout>
     </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

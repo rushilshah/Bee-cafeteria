@@ -8,27 +8,28 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.cmpe272.beecafeteria.R;
-import com.cmpe272.beecafeteria.modelResponse.Outlet;
+import com.cmpe272.beecafeteria.modelResponse.MenuItem;
 
 import java.util.Collections;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import io.techery.properratingbar.ProperRatingBar;
 
 /**
  * Created by Rushil on 11/20/2015.
  */
-public class OutletsAdapter extends RecyclerView.Adapter<OutletsAdapter.MyViewHolder> {
-    List<Outlet> data = Collections.emptyList();
+public class ConfirmMenuAdapter extends RecyclerView.Adapter<ConfirmMenuAdapter.MyViewHolder> {
+    List<MenuItem> data = Collections.emptyList();
     private LayoutInflater inflater;
     private Context context;
+    private NumberPickerCallback mCallback;
 
-    public OutletsAdapter(Context context, List<Outlet> data) {
+    public ConfirmMenuAdapter(Context context, List<MenuItem> data) {
         this.context = context;
         inflater = LayoutInflater.from(context);
         this.data = data;
+
     }
 
     public void delete(int position) {
@@ -38,16 +39,19 @@ public class OutletsAdapter extends RecyclerView.Adapter<OutletsAdapter.MyViewHo
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.adapter_outlet, parent, false);
+        View view = inflater.inflate(R.layout.adapter_confirm_order, parent, false);
         MyViewHolder holder = new MyViewHolder(view);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
-        Outlet outlet = data.get(position);
-        holder.title.setText(outlet.getOutletName());
-        holder.ratingBar.setRating((outlet.getExpenseRating().equals("null"))?0:Integer.parseInt(outlet.getExpenseRating()));
+    public void onBindViewHolder(MyViewHolder holder, final int position) {
+        final MenuItem menuItem = data.get(position);
+        holder.itemName.setText(menuItem.getItemName());
+        holder.itemQty.setText("x" + String.valueOf(menuItem.getQuantity()));
+        double total = Float.parseFloat(menuItem.getPrice())*Float.parseFloat(menuItem.getQuantity());
+        holder.itemPrice.setText(String.valueOf(Math.round(total*100)/100D)+"$");
+
     }
 
     @Override
@@ -56,15 +60,23 @@ public class OutletsAdapter extends RecyclerView.Adapter<OutletsAdapter.MyViewHo
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
-        @Bind(R.id.title)
-        TextView title;
+        @Bind(R.id.txtItemName)
+        TextView itemName;
 
-        @Bind(R.id.rating)
-        ProperRatingBar ratingBar;
+        @Bind(R.id.txtItemQty)
+        TextView itemQty;
+
+        @Bind(R.id.txtPrice)
+        TextView itemPrice;
+
 
         public MyViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this,itemView);
         }
+    }
+
+    public interface NumberPickerCallback{
+        void onNumberpickerOpener(String title, int position);
     }
 }

@@ -7,63 +7,51 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.cmpe272.beecafeteria.R;
-import com.cmpe272.beecafeteria.adapter.DailyDealsAdapter;
+import com.cmpe272.beecafeteria.adapter.MenuAdapter;
 import com.cmpe272.beecafeteria.base.App;
-import com.cmpe272.beecafeteria.modelResponse.DailyDeals;
+import com.cmpe272.beecafeteria.modelResponse.MenuItem;
+import com.cmpe272.beecafeteria.modelResponse.Outlet;
 import com.cmpe272.beecafeteria.modelResponse.PostResponse;
-import com.cmpe272.beecafeteria.network.DailyDealsApiRequests;
 import com.cmpe272.beecafeteria.network.GsonGetRequest;
 import com.cmpe272.beecafeteria.network.GsonPostRequest;
+import com.cmpe272.beecafeteria.network.MenuApiReqests;
 import com.cmpe272.beecafeteria.network.OutletApiRequests;
 import com.cmpe272.beecafeteria.others.SessionManager;
 import com.cmpe272.beecafeteria.others.Utils;
 
 import org.lucasr.twowayview.ItemClickSupport;
 import org.lucasr.twowayview.widget.TwoWayView;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link DealsFragment#newInstance} factory method to
+ * Use the {@link OutletFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DealsFragment extends Fragment {
+public class OutletFragment extends Fragment implements MenuAdapter.NumberPickerCallback, NumberPickerDialogFragment.NumberChangeCalllbackInterface, OrderConfirmatonDialogFragment.OrderConfirmationCallback {
 
-    public static String TAG="DealsFragment";
-
-    @Bind(R.id.coordinatorLayout)
-    CoordinatorLayout coordinatorLayout;
-
-    @Bind(R.id.dealsList)
-    TwoWayView dailyDealsList;
-
-    @Bind(R.id.swipe_refresh_layout)
-    SwipeRefreshLayout swipeRefreshLayout;
-
-    @Bind(R.id.no_item_layout)
-    LinearLayout layoutNoItem;
-
-    //Context of application
-    private Activity activity;
-
-    //Adapter object to set in RecyclerList of outlets
-    private DailyDealsAdapter dailyDealsAdapter;
+    public static String TAG = "OutletFragment";
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -72,26 +60,52 @@ public class DealsFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
 
-    //List that wil contain all daily list
-    ArrayList<DailyDeals> arrListDailyDeals;
+    @Bind(R.id.menuList)
+    TwoWayView menuLIst;
+
+    @Bind(R.id.coordinatorLayout)
+    CoordinatorLayout coordinatorLayout;
+
+    @Bind(R.id.swipe_refresh_layout)
+    SwipeRefreshLayout swipeRefreshLayout;
+
+    @Bind(R.id.no_item_layout)
+    LinearLayout layoutNoItem;
+
+    @Bind(R.id.btn_cancel)
+    Button btnCancel;
+
+    @Bind(R.id.btn_checkout)
+    Button btnCheckout;
+
+    //Context of application
+    private Activity activity;
+
+    //Adapter object to set in RecyclerList of outlets
+    private MenuAdapter menuAdapter;
+
+    //Selected outlet object
+    private Outlet selectedOutlet;
+
+    private List<MenuItem> menuItemList;
 
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @return A new instance of fragment DealsFragment.
+     * @param outlet Selected Outlet.
+     * @return A new instance of fragment OutletsListFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static DealsFragment newInstance(String param1) {
-        DealsFragment fragment = new DealsFragment();
+    public static OutletFragment newInstance(Outlet outlet) {
+        OutletFragment fragment = new OutletFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
+        args.putParcelable(ARG_PARAM1, Parcels.wrap(outlet));
         fragment.setArguments(args);
         return fragment;
     }
 
-    public DealsFragment() {
+    public OutletFragment() {
         // Required empty public constructor
     }
 
@@ -99,15 +113,15 @@ public class DealsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
+            selectedOutlet = Parcels.unwrap(getArguments().getParcelable(ARG_PARAM1));
         }
-        arrListDailyDeals = new ArrayList<>();
+        menuItemList = new ArrayList<>();
         getData();
     }
 
     @Override
     public void onAttach(Context context) {
-        this.activity = (Activity)context;
+        this.activity = (Activity) context;
         super.onAttach(context);
     }
 
@@ -115,12 +129,12 @@ public class DealsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_deals, container, false);
+        View view = inflater.inflate(R.layout.fragment_oulet, container, false);
         ButterKnife.bind(this, view);
 
-        dailyDealsAdapter = new DailyDealsAdapter(activity,arrListDailyDeals);
+        menuAdapter = new MenuAdapter(activity, menuItemList, this);
 
-        dailyDealsList.setAdapter(dailyDealsAdapter);
+        menuLIst.setAdapter(menuAdapter);
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -129,52 +143,35 @@ public class DealsFragment extends Fragment {
             }
         });
 
-        final ItemClickSupport itemClick = ItemClickSupport.addTo(dailyDealsList);
+        final ItemClickSupport itemClick = ItemClickSupport.addTo(menuLIst);
 
         itemClick.setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClick(RecyclerView recyclerView, View view, int i, long l) {
-                //Toast.makeText(activity, "Deal Selected: " + i, Toast.LENGTH_LONG).show();
-                onOrderConfirmationAlert(i);
+                //Toast.makeText(activity, "Item clicked: " + i, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onCancelCalled();
+            }
+        });
+
+        btnCheckout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkout();
             }
         });
 
         return view;
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        App.cancelAllRequests(TAG);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
-
-    private void onOrderConfirmationAlert(final int position) {
-
-        DialogInterface.OnClickListener positiveClickListner = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                onOrderPlaced(arrListDailyDeals.get(position));
-            }
-        };
-
-        DialogInterface.OnClickListener negativeClickListner = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        };
-
-        Utils.alertDialogCreator(activity, "Place order", "Are you sure you want to place order for selected daily deal?", positiveClickListner, negativeClickListner);
-    }
-
     /**
-     * Return data for navigation drawer
+     * Return menuItemList for navigation drawer
+     *
      * @return list of navigation drawer items
      */
     public void getData() {
@@ -185,22 +182,25 @@ public class DealsFragment extends Fragment {
         progressDialog.setMessage("Fetching Deals...");
         progressDialog.show();
 
+        String outletName = selectedOutlet.getOutletName();
+
+        outletName = outletName.replace(" ", "%20");
 
         final GsonGetRequest gsonPostRequest =
-                DailyDealsApiRequests.getDailyDealsRequest(
-                        new Response.Listener<ArrayList<DailyDeals>>() {
+                MenuApiReqests.getMenuFromOutletRequest(
+                        new Response.Listener<ArrayList<MenuItem>>() {
                             @Override
-                            public void onResponse(ArrayList<DailyDeals> arrDailyDealses) {
-                                arrListDailyDeals.clear();
-                                arrListDailyDeals.addAll(arrDailyDealses);
-                                dailyDealsAdapter.notifyDataSetChanged();
+                            public void onResponse(ArrayList<MenuItem> arrDailyDealses) {
+                                menuItemList.clear();
+                                menuItemList.addAll(arrDailyDealses);
+                                menuAdapter.notifyDataSetChanged();
 
-                                if(arrListDailyDeals.isEmpty()){
+                                if (menuItemList.isEmpty()) {
                                     layoutNoItem.setVisibility(View.VISIBLE);
-                                    dailyDealsList.setVisibility(View.GONE);
-                                }else{
+                                    menuLIst.setVisibility(View.GONE);
+                                } else {
                                     layoutNoItem.setVisibility(View.GONE);
-                                    dailyDealsList.setVisibility(View.VISIBLE);
+                                    menuLIst.setVisibility(View.VISIBLE);
                                 }
                                 progressDialog.dismiss();
                                 swipeRefreshLayout.setRefreshing(false);
@@ -213,7 +213,7 @@ public class DealsFragment extends Fragment {
                                 // Deal with the error here
                                 //mProgressBar.setVisibility(View.GONE);
                                 //mErrorView.setVisibility(View.VISIBLE);
-                                progressDialog.dismiss();
+                                Log.d("Error",error.toString());
                                 Snackbar.make(coordinatorLayout, "Something went wrong!", Snackbar.LENGTH_LONG)
                                         .setAction("Retry", new View.OnClickListener() {
                                             @Override
@@ -221,26 +221,83 @@ public class DealsFragment extends Fragment {
                                                 getData();
                                             }
                                         }).show();
+                                progressDialog.dismiss();
                             }
-                        }
+                        },
+                        outletName
                 );
 
         App.addRequest(gsonPostRequest, TAG);
 
     }
 
-    public void onOrderPlaced(final DailyDeals dailyDeals) {
+    @Override
+    public void onStop() {
+        super.onStop();
+        App.cancelAllRequests(TAG);
+    }
+
+    @Override
+    public void onNumberpickerOpener(String title, int position) {
+        DialogFragment newFragment = NumberPickerDialogFragment.newInstance(title, position);
+        newFragment.setTargetFragment(this, 0);
+        newFragment.show(getFragmentManager(), "NumberPicker");
+    }
+
+    @Override
+    public void onNumberChanged(int position, int quantity) {
+        menuItemList.get(position).setQuantity(String.valueOf(quantity));
+        menuAdapter.notifyDataSetChanged();
+    }
+
+    private void checkout() {
+        ArrayList<MenuItem> menuSelectedItem = new ArrayList<>();
+        for (MenuItem item : menuItemList) {
+            if (item.isSelected()) {
+                menuSelectedItem.add(item);
+            }
+        }
+
+        if(menuSelectedItem.size() > 0) {
+            DialogFragment newFragment = OrderConfirmatonDialogFragment.newInstance(menuSelectedItem);
+            newFragment.setTargetFragment(this, 0);
+            newFragment.show(getFragmentManager(), "ConfirmOrder");
+        }else{
+            Utils.alertDialogCreatorWithMessageOnly(activity,"Order","Please select item before placing order.");
+        }
+    }
+
+    private void onCancelCalled() {
+
+        DialogInterface.OnClickListener positiveClickListner = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                activity.onBackPressed();
+            }
+        };
+
+        DialogInterface.OnClickListener negativeClickListner = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        };
+
+        Utils.alertDialogCreator(activity, "Cancel Order", "Are you sure you want to cancel the selection?", positiveClickListner, negativeClickListner);
+    }
+
+    @Override
+    public void onOrderPlaced(ArrayList<MenuItem> confirmMenuList,String orderTotal) {
         final ProgressDialog progressDialog = new ProgressDialog(activity,
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Placing Order...");
         progressDialog.show();
 
-        final String strCounterId = dailyDeals.getProviderName();
+        final String strCounterId = selectedOutlet.getOutletId();
         final String strUsername = SessionManager.getUserDetails(activity).get(SessionManager.KEY_EMAIL);
-        final String dailyDealFlag = activity.getString(R.string.DailyDealOn);
-        final String order = dailyDeals.getDailyDealTitle();
-        final String orderPrice = String.valueOf(dailyDeals.getPrice());
+        final String dailyDealFlag = activity.getString(R.string.DailyDealOff);
+        final String orderList = generateOrderString(confirmMenuList);
 
         final GsonPostRequest gsonPostRequest =
                 OutletApiRequests.postPlaceOrder
@@ -254,7 +311,7 @@ public class DealsFragment extends Fragment {
                                         ///setData(dummyObject);
                                         progressDialog.dismiss();
                                         Toast.makeText(activity, "Order Placed Successfully!", Toast.LENGTH_LONG).show();
-
+                                        activity.onBackPressed();
                                     }
                                 }
                                 ,
@@ -269,15 +326,22 @@ public class DealsFragment extends Fragment {
                                                 .setAction("Retry", new View.OnClickListener() {
                                                     @Override
                                                     public void onClick(View view) {
-                                                        onOrderPlaced(dailyDeals);
+                                                        checkout();
                                                     }
                                                 }).show();
                                     }
                                 },
-                                strCounterId, strUsername, dailyDealFlag, order, orderPrice
+                                strCounterId, strUsername, dailyDealFlag, orderList, orderTotal
                         );
 
         App.addRequest(gsonPostRequest, TAG);
     }
 
+    private String generateOrderString(ArrayList<MenuItem> confirmMenuList){
+        StringBuilder generatedOrder = new StringBuilder();
+        for(MenuItem item: confirmMenuList){
+            generatedOrder.append(item.getItemName()+" "+item.getQuantity()+", ");
+        }
+        return generatedOrder.toString();
+    }
 }

@@ -37,7 +37,7 @@ public class SessionManager {
      * */
     public static void createLoginSession(Activity activity, String email){
 
-        registerGCMForUser(activity);
+
 
         SharedPreferences.Editor editor = activity.getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE).edit();
 
@@ -49,6 +49,9 @@ public class SessionManager {
 
         // commit changes
         editor.commit();
+
+        registerGCMForUser(activity);
+
     }
 
     /**

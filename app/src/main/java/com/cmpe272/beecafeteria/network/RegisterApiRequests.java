@@ -58,4 +58,41 @@ public class RegisterApiRequests {
         return gsonPostRequest;
     }
 
+    /**
+     * An REgister GCM of the user to store in database.
+     *
+     * @param listener is the listener for the success response
+     * @param errorListener is the listener for the error response
+     * @param params parameters tht will be send in post request
+     *
+     * @return {@link GsonPostRequest}
+     */
+    public static GsonPostRequest postGCMRegistration
+    (
+            @NonNull final Response.Listener<PostResponse> listener,
+            @NonNull final Response.ErrorListener errorListener,
+            String... params
+    )
+    {
+        final String url = BuildConfig.apiDomainName + "/register/token";
+
+        final JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("email", params[0]);
+        jsonObject.addProperty("registration_token", params[1]);
+
+        final GsonPostRequest gsonPostRequest = new GsonPostRequest<>
+                (
+                        url,
+                        jsonObject.toString(),
+                        new TypeToken<PostResponse>() {}.getType(),
+                        gson,
+                        listener,
+                        errorListener
+                );
+
+        gsonPostRequest.setShouldCache(false);
+
+        return gsonPostRequest;
+    }
+
 }

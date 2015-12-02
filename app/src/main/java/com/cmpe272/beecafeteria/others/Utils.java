@@ -2,11 +2,13 @@ package com.cmpe272.beecafeteria.others;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 
@@ -26,6 +28,9 @@ public class Utils {
     public static final String PARSE_APPLICATION_ID = "kTh0L8WA9uao2KY1Nhyh0113VWVxYwchqBQg2I3O";
     public static final String PARSE_CLIENT_KEY = "8bbnPHnSroVP9ypO9ttkLpnNCw7hL8mPoVNQnnRa";
     public static final int NOTIFICATION_ID = 100;
+
+    public static final String FIRST_BEACON = "36923C2EEB94436DB05A1DDD2BF3FFCB";
+    public static final String SECOND_BEACON = "4F5FEB1AE4E34D3E800B390FE66150DF";
 
     public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
     public static final String REGISTRATION_COMPLETE = "registrationComplete";
@@ -102,6 +107,29 @@ public class Utils {
             return false;
         }
         return true;
+    }
+
+    public static void alertDialogCreator(Context context,String title, String message, DialogInterface.OnClickListener positiveClickListner,
+                                          DialogInterface.OnClickListener negativeClickListner){
+        new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.yes,positiveClickListner)
+                .setNegativeButton(android.R.string.no, negativeClickListner)
+                .show();
+    }
+
+    public static void alertDialogCreatorWithMessageOnly(Context context,String title, String message){
+        new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                })
+                .show();
     }
 
 }

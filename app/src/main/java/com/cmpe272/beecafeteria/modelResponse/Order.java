@@ -1,5 +1,7 @@
 package com.cmpe272.beecafeteria.modelResponse;
 
+import com.google.gson.annotations.SerializedName;
+
 import org.parceler.Parcel;
 
 /**
@@ -8,16 +10,19 @@ import org.parceler.Parcel;
 @Parcel
 public class Order {
 
+    @SerializedName("name")
     String outlateName;
 
-    String counter;
-
+    @SerializedName("menu_items")
     String orderDescription;
 
+    @SerializedName("order_status")
     String status;
 
+    @SerializedName("amount")
     String total;
 
+    @SerializedName("created_at")
     String orderDate;
 
     public String getOutlateName() {
@@ -26,14 +31,6 @@ public class Order {
 
     public void setOutlateName(String outlateName) {
         this.outlateName = outlateName;
-    }
-
-    public String getCounter() {
-        return counter;
-    }
-
-    public void setCounter(String counter) {
-        this.counter = counter;
     }
 
     public String getOrderDescription() {
